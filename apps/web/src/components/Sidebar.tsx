@@ -1461,8 +1461,10 @@ const SidebarThreadRow = memo(function SidebarThreadRow(props: {
       ) : null}
       <div
         className={cn(
-          swipeEnabled && "bg-sidebar",
-          swipeEnabled && !swipeDragging && "transition-transform duration-200 ease-out",
+          swipeEnabled && "bg-sidebar surface-grain",
+          swipeEnabled &&
+            !swipeDragging &&
+            "transition-transform duration-200 ease-out motion-reduce:transition-none",
           swipeEnabled && (swipeDragging || props.mobileSwipeOpen) && "will-change-transform",
         )}
         style={swipeEnabled ? { transform: `translate3d(${swipeOffset}px, 0, 0)` } : undefined}
