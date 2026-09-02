@@ -168,7 +168,7 @@ import {
   snoozeWakeLabel,
   type SnoozePreset,
 } from "./Sidebar.snooze";
-import { SIDEBAR_SWIPE_ACTION_WIDTH } from "./Sidebar.swipe";
+import { SIDEBAR_SWIPE_ACTION_WIDTH, resolveSidebarSwipeOpenThreadKey } from "./Sidebar.swipe";
 import { MobileSidebarSwipeActions, useMobileSidebarRowSwipe } from "./SidebarSwipeActions";
 import { SidebarSnoozePresetList } from "./SidebarSnoozePresetList";
 import { ProjectFavicon } from "./ProjectFavicon";
@@ -1817,7 +1817,9 @@ export default function Sidebar() {
   const { isMobile, openMobile, setOpenMobile } = useSidebar();
   const [mobileSwipeOpenThreadKey, setMobileSwipeOpenThreadKey] = useState<string | null>(null);
   const handleMobileSwipeOpenChange = useCallback((threadKey: string, open: boolean) => {
-    setMobileSwipeOpenThreadKey(open ? threadKey : null);
+    setMobileSwipeOpenThreadKey((currentThreadKey) =>
+      resolveSidebarSwipeOpenThreadKey({ currentThreadKey, changedThreadKey: threadKey, open }),
+    );
   }, []);
   useEffect(() => {
     if (!openMobile) setMobileSwipeOpenThreadKey(null);

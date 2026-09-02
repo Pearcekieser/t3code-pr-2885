@@ -31,3 +31,12 @@ export function clampSidebarSwipeOffset(input: {
 export function shouldOpenSidebarSwipe(input: { offset: number; revealWidth: number }): boolean {
   return input.offset <= -input.revealWidth * 0.35;
 }
+
+export function resolveSidebarSwipeOpenThreadKey(input: {
+  currentThreadKey: string | null;
+  changedThreadKey: string;
+  open: boolean;
+}): string | null {
+  if (input.open) return input.changedThreadKey;
+  return input.currentThreadKey === input.changedThreadKey ? null : input.currentThreadKey;
+}

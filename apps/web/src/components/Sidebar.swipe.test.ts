@@ -2,6 +2,7 @@ import { describe, expect, it } from "vite-plus/test";
 
 import {
   clampSidebarSwipeOffset,
+  resolveSidebarSwipeOpenThreadKey,
   resolveSidebarSwipeIntent,
   shouldOpenSidebarSwipe,
 } from "./Sidebar.swipe";
@@ -38,5 +39,34 @@ describe("shouldOpenSidebarSwipe", () => {
   it("opens after a deliberate reveal and otherwise settles closed", () => {
     expect(shouldOpenSidebarSwipe({ offset: -76, revealWidth: 216 })).toBe(true);
     expect(shouldOpenSidebarSwipe({ offset: -75, revealWidth: 216 })).toBe(false);
+  });
+});
+
+describe("resolveSidebarSwipeOpenThreadKey", () => {
+  it("opens the changed row and replaces any previously open row", () => {
+    expect(
+      resolveSidebarSwipeOpenThreadKey({
+        currentThreadKey: "thread-a",
+        changedThreadKey: "thread-b",
+        open: true,
+      }),
+    ).toBe("thread-b");
+  });
+
+  it("only lets the currently open row close itself", () => {
+    expect(
+      resolveSidebarSwipeOpenThreadKey({
+        currentThreadKey: "thread-a",
+        changedThreadKey: "thread-b",
+        open: false,
+      }),
+    ).toBe("thread-a");
+    expect(
+      resolveSidebarSwipeOpenThreadKey({
+        currentThreadKey: "thread-a",
+        changedThreadKey: "thread-a",
+        open: false,
+      }),
+    ).toBeNull();
   });
 });
