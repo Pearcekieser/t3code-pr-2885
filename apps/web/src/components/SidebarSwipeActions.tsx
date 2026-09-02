@@ -10,14 +10,16 @@ import type { TimestampFormat } from "@t3tools/contracts/settings";
 import { CheckIcon, ClockIcon, PinIcon } from "lucide-react";
 
 import { cn } from "~/lib/utils";
-import { Popover, PopoverPopup, PopoverTrigger } from "./ui/popover";
+import { Popover, PopoverTrigger } from "./ui/popover";
 import { resolveSnoozePresets, type SnoozePreset } from "./Sidebar.snooze";
 import {
+  SIDEBAR_SWIPE_ACTION_WIDTH,
   clampSidebarSwipeOffset,
   resolveSidebarSwipeIntent,
   shouldOpenSidebarSwipe,
   type SidebarSwipeIntent,
 } from "./Sidebar.swipe";
+import { SidebarSnoozePresetList } from "./SidebarSnoozePresetList";
 
 export function useMobileSidebarRowSwipe(props: {
   enabled: boolean;
@@ -169,7 +171,8 @@ export function MobileSidebarSwipeActions(props: {
     if (!props.open) setSnoozeOpen(false);
   }, [props.open]);
   const actionClassName =
-    "flex h-full w-[72px] shrink-0 cursor-pointer flex-col items-center justify-center gap-1 text-[11px] font-medium text-white outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-white/80";
+    "flex h-full shrink-0 cursor-pointer flex-col items-center justify-center gap-1 text-[11px] font-medium text-white outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-white/80";
+  const actionStyle = { width: SIDEBAR_SWIPE_ACTION_WIDTH };
   return (
     <div
       role="group"
@@ -182,6 +185,7 @@ export function MobileSidebarSwipeActions(props: {
         <button
           type="button"
           aria-label="Settle thread"
+          style={actionStyle}
           onClick={(event) => {
             event.stopPropagation();
             props.onClose();
@@ -200,40 +204,31 @@ export function MobileSidebarSwipeActions(props: {
               <button
                 type="button"
                 aria-label="Snooze thread"
+                style={actionStyle}
                 onClick={(event) => event.stopPropagation()}
-                className={cn(actionClassName, "bg-amber-500 active:bg-amber-600")}
+                className={cn(actionClassName, "bg-amber-700 active:bg-amber-800")}
               />
             }
           >
             <ClockIcon aria-hidden className="size-5" />
             <span>Snooze</span>
           </PopoverTrigger>
-          <PopoverPopup side="bottom" align="end" className="w-56" viewportClassName="p-1">
-            {presets.map((preset) => (
-              <button
-                key={preset.id}
-                type="button"
-                onClick={(event) => {
-                  event.stopPropagation();
-                  setSnoozeOpen(false);
-                  props.onClose();
-                  props.onSnooze(preset);
-                }}
-                className="flex w-full cursor-pointer items-center gap-2 rounded-md px-2 py-2 text-left text-xs text-foreground/90 hover:bg-accent hover:text-foreground"
-              >
-                <span className="flex-1">{preset.label}</span>
-                <span className="font-mono text-[10px] text-muted-foreground/60 tabular-nums">
-                  {preset.whenLabel}
-                </span>
-              </button>
-            ))}
-          </PopoverPopup>
+          <SidebarSnoozePresetList
+            presets={presets}
+            rowSize="touch"
+            onSelect={(preset) => {
+              setSnoozeOpen(false);
+              props.onClose();
+              props.onSnooze(preset);
+            }}
+          />
         </Popover>
       ) : null}
       {props.showPin ? (
         <button
           type="button"
           aria-label={props.isPinned ? "Unpin thread" : "Pin thread"}
+          style={actionStyle}
           onClick={(event) => {
             event.stopPropagation();
             props.onClose();

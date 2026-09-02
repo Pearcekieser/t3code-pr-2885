@@ -170,6 +170,7 @@ import {
 } from "./Sidebar.snooze";
 import { SIDEBAR_SWIPE_ACTION_WIDTH } from "./Sidebar.swipe";
 import { MobileSidebarSwipeActions, useMobileSidebarRowSwipe } from "./SidebarSwipeActions";
+import { SidebarSnoozePresetList } from "./SidebarSnoozePresetList";
 import { ProjectFavicon } from "./ProjectFavicon";
 import { ProviderInstanceIcon } from "./chat/ProviderInstanceIcon";
 import { getTriggerDisplayModelLabel } from "./chat/providerIconUtils";
@@ -194,7 +195,7 @@ import {
 } from "./ui/combobox";
 import { SidebarContent, SidebarGroup, SidebarMenuButton, useSidebar } from "./ui/sidebar";
 import { SidebarChromeFooter, SidebarChromeHeader } from "./sidebar/SidebarChrome";
-import { Popover, PopoverPopup, PopoverTrigger } from "./ui/popover";
+import { Popover, PopoverTrigger } from "./ui/popover";
 import { Tooltip, TooltipPopup, TooltipProvider, TooltipTrigger } from "./ui/tooltip";
 import {
   composerDraftHasUserContent,
@@ -429,25 +430,13 @@ function SnoozePopoverButton(props: {
         </TooltipTrigger>
         <TooltipPopup>Snooze thread</TooltipPopup>
       </Tooltip>
-      <PopoverPopup side="bottom" align="end" className="w-56" viewportClassName="p-1">
-        {presets.map((preset) => (
-          <button
-            key={preset.id}
-            type="button"
-            onClick={(event) => {
-              event.stopPropagation();
-              onOpenChange(false);
-              onSnooze(preset);
-            }}
-            className="flex w-full cursor-pointer items-center gap-2 rounded-md px-2 py-1.5 text-left text-xs text-foreground/90 hover:bg-accent hover:text-foreground"
-          >
-            <span className="flex-1">{preset.label}</span>
-            <span className="font-mono text-[10px] text-muted-foreground/60 tabular-nums">
-              {preset.whenLabel}
-            </span>
-          </button>
-        ))}
-      </PopoverPopup>
+      <SidebarSnoozePresetList
+        presets={presets}
+        onSelect={(preset) => {
+          onOpenChange(false);
+          onSnooze(preset);
+        }}
+      />
     </Popover>
   );
 }
@@ -1482,12 +1471,20 @@ const SidebarThreadRow = memo(function SidebarThreadRow(props: {
               className={cn(
                 rowSurfaceClassName,
                 swipeEnabled && "touch-pan-y",
-                swipeEnabled && !props.isActive && !isSelected && "bg-sidebar",
                 swipeEnabled && !swipeDragging && "transition-transform duration-200 ease-out",
                 swipeEnabled && (swipeDragging || props.mobileSwipeOpen) && "will-change-transform",
               )}
               style={
-                swipeEnabled ? { transform: `translate3d(${swipeOffset}px, 0, 0)` } : undefined
+                swipeEnabled
+                  ? {
+                      transform: `translate3d(${swipeOffset}px, 0, 0)`,
+                      background: props.isActive
+                        ? "linear-gradient(var(--sidebar-row-active), var(--sidebar-row-active)), var(--sidebar)"
+                        : isSelected
+                          ? "linear-gradient(var(--sidebar-row-selected), var(--sidebar-row-selected)), var(--sidebar)"
+                          : "var(--sidebar)",
+                    }
+                  : undefined
               }
               onClick={handleClick}
               onDoubleClick={handleDoubleClick}
