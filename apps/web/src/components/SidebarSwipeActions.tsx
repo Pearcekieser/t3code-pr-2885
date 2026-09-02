@@ -115,6 +115,22 @@ export function useMobileSidebarRowSwipe(props: {
     [onOpenChange, revealWidth],
   );
 
+  const cancelGesture = useCallback(
+    (event: ReactPointerEvent<HTMLElement>) => {
+      const gesture = gestureRef.current;
+      if (gesture === null || gesture.pointerId !== event.pointerId) return;
+      gestureRef.current = null;
+      if (event.currentTarget.hasPointerCapture(event.pointerId)) {
+        event.currentTarget.releasePointerCapture(event.pointerId);
+      }
+      setDragging(false);
+      suppressClickRef.current = false;
+      offsetRef.current = restingOffset;
+      setOffset(restingOffset);
+    },
+    [restingOffset],
+  );
+
   const consumeSuppressedClick = useCallback(() => {
     if (!suppressClickRef.current) return false;
     suppressClickRef.current = false;
@@ -125,7 +141,7 @@ export function useMobileSidebarRowSwipe(props: {
     consumeSuppressedClick,
     dragging,
     offset,
-    onPointerCancel: finishGesture,
+    onPointerCancel: cancelGesture,
     onPointerDown,
     onPointerMove,
     onPointerUp: finishGesture,
@@ -160,6 +176,7 @@ export function MobileSidebarSwipeActions(props: {
       aria-label="Thread swipe actions"
       className="absolute inset-y-0.5 right-0 flex overflow-hidden rounded-r-md"
       inert={!props.open}
+      onPointerDown={(event) => event.stopPropagation()}
     >
       {props.showSettle ? (
         <button
